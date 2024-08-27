@@ -13,16 +13,20 @@ class EntityController extends Controller
     {
         $url = $request->input('url');
         
-        // Log the URL received
         Log::info('URL Received: ' . $url);
 
-        // Ruta correcta del script Python
         $scriptPath = base_path('scripts/extract_entities.py');
         $process = new Process(['python', $scriptPath, $url]);
 
         try {
             $process->mustRun();
             $output = $process->getOutput();
+
+            $jsonStart = strpos($output, '{');
+            if ($jsonStart !== false) {
+                $output = substr($output, $jsonStart);
+            }
+
             Log::info('Process Output: ' . $output);
 
             $data = json_decode($output, true);

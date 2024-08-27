@@ -1,37 +1,45 @@
 import sys
-import requests
 import json
+from playwright.sync_api import sync_playwright
 from google.cloud import language_v1
 from bs4 import BeautifulSoup
 
+def get_page_content(url):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        page.goto(url)
+
+        # Esperar a que la página cargue completamente
+        page.wait_for_load_state('networkidle')
+
+        content = page.content()
+        print("Contenido cargado correctamente.")
+        browser.close()
+
+    return content
+
 def extract_entities(url):
-    # Configura el cliente de Google Cloud Language API
     client = language_v1.LanguageServiceClient()
 
-    # Descargar el contenido de la URL
-    response = requests.get(url)
-    content = response.text
+    content = get_page_content(url)
+    if not content:
+        return []
 
-    # Filtrar el contenido HTML para extraer solo el texto
     soup = BeautifulSoup(content, 'html.parser')
     for script_or_style in soup(['script', 'style']):
         script_or_style.decompose()
     text = soup.get_text()
 
-    # Analizar el contenido
     document = language_v1.Document(content=text, type_=language_v1.Document.Type.PLAIN_TEXT)
     response = client.analyze_entities(document=document)
 
-    # Obtener las entidades
     entities = response.entities
-    relevant_types = ['ORGANIZATION', 'PERSON', 'LOCATION']  # Filtra por tipos relevantes
     entities_list = [{'name': entity.name, 'type': language_v1.Entity.Type(entity.type_).name, 'salience': entity.salience}
-                     for entity in entities if language_v1.Entity.Type(entity.type_).name in relevant_types]
+                     for entity in entities]
 
-    # Ordenar por salience (relevancia)
     entities_list.sort(key=lambda x: x['salience'], reverse=True)
 
-    # Limitar a las 5 entidades más relevantes
     return entities_list[:5]
 
 if __name__ == "__main__":
