@@ -11,20 +11,33 @@ Este proyecto es una aplicación web desarrollada con Laravel, jQuery y Python q
 - **Playwright**
 - **BeautifulSoup4**
 
+
 ### Instalar dependencias
 composer install
+pip install playwright
+playwright install
 
 ### Configuracion de entorno y genera la clave
 cp .env.example .env
 php artisan key:generate
 
+**En el archivo .env generado comanta y modifica las siguientes lineas**
+**Comenta**
+- **DB_CONNECTION=sqlite**
+- **QUEUE_CONNECTION=database**
+**Modifica**
+- **SESSION_DRIVER=file**
+- **CACHE_STORE=file**
+
+
+
 ### Instalar dependencias de python
 pip install google-cloud-language playwright beautifulsoup4
 
 ### Habilitar Google Cloud API 
-## Descarga las credenciales del servicio y configura la variable de entorno GOOGLE_APPLICATION_CREDENTIALS que apunte al archivo de credenciales json.
+- **Descarga las credenciales del servicio y configura la variable de entorno GOOGLE_APPLICATION_CREDENTIALS que apunte al archivo de credenciales json.** 
 
-# export GOOGLE_APPLICATION_CREDENTIALS="/agrega la ruta/credenciales.json"
+- **export GOOGLE_APPLICATION_CREDENTIALS="/agrega la ruta/credenciales.json"**
 
 ### Ejecuta playwright (solo la primera vez)
 python -m playwright install
