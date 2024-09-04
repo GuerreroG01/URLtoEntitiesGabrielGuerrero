@@ -9,8 +9,6 @@ def get_page_content(url):
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto(url)
-
-        # Esperar a que la página cargue completamente
         page.wait_for_load_state('networkidle')
 
         content = page.content()
