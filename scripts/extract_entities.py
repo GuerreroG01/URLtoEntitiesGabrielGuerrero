@@ -10,6 +10,7 @@ def get_page_content(url):
         page = browser.new_page()
         page.goto(url)
 
+        # Esperar a que la página cargue completamente
         page.wait_for_load_state('networkidle')
 
         content = page.content()
